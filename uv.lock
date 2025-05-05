@@ -67,6 +67,7 @@ dependencies = [
 dev = [
     { name = "black" },
     { name = "isort" },
+    { name = "larkedit" },
     { name = "mypy" },
 ]
 
@@ -77,6 +78,7 @@ requires-dist = [{ name = "pyside6", specifier = ">=6.9.0" }]
 dev = [
     { name = "black", specifier = ">=25.1.0" },
     { name = "isort", specifier = ">=6.0.1" },
+    { name = "larkedit", editable = "." },
     { name = "mypy", specifier = ">=1.15.0" },
 ]
 

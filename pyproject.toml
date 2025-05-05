@@ -19,6 +19,7 @@ build-backend = "scikit_build_core.build"
 dev = [
     "black>=25.1.0",
     "isort>=6.0.1",
+    "larkedit",
     "mypy>=1.15.0",
 ]
 
@@ -37,3 +38,6 @@ cmake.build-type = "Release"
 
 # Python 実行ファイルを CMake 側に渡す
 cmake.define = { "PYTHON_EXECUTABLE" = "{sys.executable}" }
+
+[tool.uv.sources]
+larkedit = { workspace = true }

@@ -1,0 +1,39 @@
+[project]
+name = "LarkEdit"
+version = "0.1.0"
+description = "Open-source extensible video editor built with PySide6 and FFmpeg."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyside6>=6.9.0",
+]
+
+[build-system]
+requires = [
+    "scikit-build-core>=0.11.2",
+    "pybind11>=2.13.6", # CMake の find_package で拾う
+]
+build-backend = "scikit_build_core.build"
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "isort>=6.0.1",
+    "mypy>=1.15.0",
+]
+
+[project.scripts]
+larkedit = "larkedit.cli:main"
+
+[project.entry-points."larkedit.plugins"]
+builtin_text_draw = "larkedit.extensions.builtin.text_draw.plugin:TextDrawPlugin"
+
+[tool.scikit-build]
+wheel.packages = ["src/larkedit"]
+
+# CMake に渡すオプション
+cmake.minimum-version = "4.0.1"
+cmake.build-type = "Release"
+
+# Python 実行ファイルを CMake 側に渡す
+cmake.define = { "PYTHON_EXECUTABLE" = "{sys.executable}" }

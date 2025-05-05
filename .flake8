@@ -1,0 +1,2 @@
+[flake8]
+per-file-ignores = *.pyi: E301,E302,E704

@@ -5,6 +5,7 @@ description = "Open-source extensible video editor built with PySide6 and FFmpeg
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "numpy>=2.2.5",
     "pyside6>=6.9.0",
 ]
 

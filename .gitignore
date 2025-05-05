@@ -8,3 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Example output
+example_output/
+
+# Misc
+.DS_Store

@@ -1,11 +1,6 @@
 from __future__ import annotations
 
-from PySide6.QtWidgets import (
-    QWidget,
-    QFormLayout,
-    QDoubleSpinBox,
-    QLabel,
-)
+from PySide6.QtWidgets import QDoubleSpinBox, QFormLayout, QLabel, QWidget
 
 from ...core.project import Clip, Project
 

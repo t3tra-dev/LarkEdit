@@ -6,8 +6,8 @@ from pathlib import Path
 from PySide6.QtWidgets import QMainWindow, QStackedWidget
 
 from ..core.project import Project  # 編集モデル
-from .welcome import WelcomePage
 from .editor import EditorPage
+from .welcome import WelcomePage
 
 
 class MainWindow(QMainWindow):

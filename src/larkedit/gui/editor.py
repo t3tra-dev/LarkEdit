@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QSplitter, QToolBar
+from PySide6.QtWidgets import QSplitter, QToolBar, QVBoxLayout, QWidget
 
 from ..core.project import Project
 from .widgets.media_pool import MediaPoolWidget

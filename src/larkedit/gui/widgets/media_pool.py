@@ -4,12 +4,12 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
+    QFileDialog,
     QListWidget,
     QListWidgetItem,
-    QFileDialog,
     QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
 
 from ...core.project import MediaAsset, MediaType, Project

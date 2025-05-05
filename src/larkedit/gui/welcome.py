@@ -4,15 +4,15 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QPushButton,
+    QHBoxLayout,
+    QLabel,
     QListWidget,
     QListWidgetItem,
-    QLabel,
-    QHBoxLayout,
-    QSpacerItem,
+    QPushButton,
     QSizePolicy,
+    QSpacerItem,
+    QVBoxLayout,
+    QWidget,
 )
 
 RECENT_FILE = Path.home() / ".larkedit_recent"  # 単純なテキスト保存

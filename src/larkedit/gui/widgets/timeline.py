@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Optional
 
 from PySide6.QtCore import QRect
-from PySide6.QtGui import QPainter, QColor, QPaintEvent
-from PySide6.QtWidgets import QWidget, QScrollArea
+from PySide6.QtGui import QColor, QPainter, QPaintEvent
+from PySide6.QtWidgets import QScrollArea, QWidget
 
 from ...core.project import Project, Track
 
@@ -37,7 +37,9 @@ class _TimelineCanvas(QWidget):
         for clip in track.clips:
             x = int(clip.start_ms * self.PIXELS_PER_MS)
             w = int(clip.duration_ms * self.PIXELS_PER_MS)
-            painter.fillRect(QRect(x, y + 4, w, self.TRACK_HEIGHT - 8), QColor("#6699cc"))
+            painter.fillRect(
+                QRect(x, y + 4, w, self.TRACK_HEIGHT - 8), QColor("#6699cc")
+            )
 
     # --- utils ---
     def _calc_total_height(self) -> int:

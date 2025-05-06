@@ -2,6 +2,12 @@
 
 Python製の動画編集ソフト
 
+## アーキテクチャ
+
+- PySide6 で GUI を設計
+- FFmpeg API を pybind11 でラップ、エンコーダー等に利用
+- データストリームは主に numpy 経由
+
 ## ディレクトリ構造
 
 ```plaintext

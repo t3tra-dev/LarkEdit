@@ -12,6 +12,7 @@ inline std::string ff_err2str(int err) {
 }
 
 struct FFMpegInit {
-    FFMpegInit()  { av_log_set_level(AV_LOG_ERROR); avformat_network_init(); }
-    ~FFMpegInit() { avformat_network_deinit();      }
+    FFMpegInit() { av_log_set_level(AV_LOG_ERROR); avformat_network_init(); }
+    ~FFMpegInit() { avformat_network_deinit(); }
 };
+ 

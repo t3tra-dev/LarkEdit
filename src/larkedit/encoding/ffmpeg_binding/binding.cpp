@@ -16,9 +16,9 @@ PYBIND11_MODULE(encoder, m) {
             py::buffer_info info(py::buffer(rgba).request());
             auto* ptr = static_cast<uint8_t*>(info.ptr);
             return VideoFrame{
-                width, 
-                height, 
-                pts, 
+                width,
+                height,
+                pts,
                 std::vector<uint8_t>(ptr, ptr + info.size)
             };
         }))
@@ -45,7 +45,7 @@ PYBIND11_MODULE(encoder, m) {
              py::arg("sample_rate")=48000, py::arg("channels")=2,
              py::arg("video_codec")="libx264", py::arg("audio_codec")="aac",
              py::arg("queue_cap")=32)
-        .def("start",   &MediaEncoder::start)
+        .def("start", &MediaEncoder::start)
         .def("submit_video", [](MediaEncoder& self, py::array_t<uint8_t, py::array::c_style> arr, int64_t pts){
                 py::gil_scoped_release no_gil;
                 if (arr.ndim()!=3 || arr.shape(2)!=4)

@@ -21,7 +21,8 @@ LarkEdit
 ├── CMakeLists.txt
 ├── README.md
 ├── example_output
-│   └── out_full.mp4
+│   ├── out_full.mp4
+│   └── thumb.png
 ├── examples
 │   └── ffmpeg_binding.py
 ├── pyproject.toml
@@ -52,6 +53,8 @@ LarkEdit
         │   │   ├── encoder.cpp
         │   │   ├── encoder.hpp
         │   │   ├── encoder.pyi
+        │   │   ├── probe.cpp
+        │   │   ├── probe.pyi
         │   │   └── thread_queue.hpp
         │   └── presets.py
         ├── extensions
@@ -75,7 +78,8 @@ LarkEdit
         │       ├── media_pool.py
         │       ├── preview.py
         │       ├── property_editor.py
-        │       └── timeline.py
+        │       ├── timeline.py
+        │       └── track.py
         ├── i18n
         │   ├── en_US
         │   │   └── messages.qm
@@ -87,5 +91,6 @@ LarkEdit
         └── utils
             ├── config.py
             ├── logger.py
+            ├── media.py
             └── paths.py
 ```

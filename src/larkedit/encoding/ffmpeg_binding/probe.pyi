@@ -1,0 +1,6 @@
+from typing import Dict, Any, Tuple
+
+def probe(file: str) -> Dict[str, Any]: ...
+def extract_rgba_frame(
+    file: str, ms: int = 0, max_w: int = 256, max_h: int = 256
+) -> Tuple[int, int, bytes]: ...

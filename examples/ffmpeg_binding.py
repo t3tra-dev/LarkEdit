@@ -5,6 +5,9 @@ from pathlib import Path
 import numpy as np
 
 from larkedit.encoding.ffmpeg_binding import encoder as ffm  # type: ignore
+from larkedit.utils import media
+
+# --- encoder example ---
 
 OUT_DIR = Path("example_output")
 OUT_DIR.mkdir(exist_ok=True)
@@ -71,8 +74,8 @@ for i in range(FRAME_COUNT):
     rect_w, rect_h = 80, 60
     x = int((WIDTH - rect_w) * i / (FRAME_COUNT - 1))
     y = (HEIGHT - rect_h) // 2
-    ov[y : y + rect_h, x : x + rect_w, 0] = 255  # R
-    ov[y : y + rect_h, x : x + rect_w, 3] = 255  # A
+    ov[y: y + rect_h, x: x + rect_w, 0] = 255  # R
+    ov[y: y + rect_h, x: x + rect_w, 3] = 255  # A
 
     # Compositor でレイヤブレンド
     vf_bg = np_to_vframe(bg, pts_ms)
@@ -94,3 +97,22 @@ audio_thread.join()
 print("Audio thread joined")
 enc.finish()
 print("done :", VIDEO_FILE)
+
+
+# --- probe example ---
+
+print("probe example")
+data = media.probe(VIDEO_FILE)
+for k, v in data.items():
+    print(f"{k}: {v}")
+print("probe done")
+
+# --- thumbnail example ---
+
+print("thumbnail example")
+from PySide6.QtGui import QGuiApplication  # noqa
+app = QGuiApplication([])
+img = media.thumbnail_qpixmap(VIDEO_FILE, 1000, 128)
+img.save(str(OUT_DIR / "thumb.png"))
+print("thumbnail done")
+app = None  # cleanup

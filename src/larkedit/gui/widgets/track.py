@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import Optional
 from pathlib import Path
+from typing import Optional
 
-from PySide6.QtCore import QRect, QMimeData, Signal
-from PySide6.QtGui import QPainter, QColor, QDragEnterEvent, QDropEvent
+from PySide6.QtCore import QMimeData, QRect, Signal
+from PySide6.QtGui import QColor, QDragEnterEvent, QDropEvent, QPainter
 from PySide6.QtWidgets import QWidget
 
-from ...core.project import Project, Track, AddClipCommand
 from ...core.command import UndoStack
+from ...core.project import AddClipCommand, Project, Track
 from .media_pool import MIME_ASSET_PATH
 
 __all__ = ["TrackWidget"]
@@ -26,7 +26,9 @@ class TrackWidget(QWidget):
     TRACK_HEIGHT = 40
     PIXELS_PER_MS = 0.02
 
-    def __init__(self, project: Project, track: Track, parent: Optional[QWidget] = None) -> None:
+    def __init__(
+        self, project: Project, track: Track, parent: Optional[QWidget] = None
+    ) -> None:
         super().__init__(parent)
         self._project = project
         self._track = track
@@ -43,8 +45,12 @@ class TrackWidget(QWidget):
         md: QMimeData = e.mimeData()
         path = Path(bytes(md.data(MIME_ASSET_PATH).data()).decode())
         asset = next(
-            (a for a in self._project.timeline.track(self._track.index).clips or []
-             for a in [a.asset] if a.path == path),
+            (
+                a
+                for a in self._project.timeline.track(self._track.index).clips or []
+                for a in [a.asset]
+                if a.path == path
+            ),
             None,
         )
         if asset is None:

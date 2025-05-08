@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-from typing import Optional
 from pathlib import Path
+from typing import Optional
 
-from PySide6.QtCore import Qt, QMimeData, QByteArray
-from PySide6.QtGui import QPixmap, QDrag, QMouseEvent
+from PySide6.QtCore import QByteArray, QMimeData, Qt
+from PySide6.QtGui import QDrag, QMouseEvent, QPixmap
 from PySide6.QtWidgets import (
-    QWidget,
-    QScrollArea,
-    QVBoxLayout,
+    QFileDialog,
     QGridLayout,
     QLabel,
     QPushButton,
-    QFileDialog,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
 )
 
 from ...core.project import MediaAsset, MediaType, Project
@@ -24,7 +24,9 @@ MIME_ASSET_PATH = "application/x-larkedit-asset"
 class MediaItemWidget(QWidget):
     """サムネイル + ファイル名"""
 
-    def __init__(self, asset: MediaAsset, thumb_size: int = 96, parent: Optional[QWidget] = None) -> None:
+    def __init__(
+        self, asset: MediaAsset, thumb_size: int = 96, parent: Optional[QWidget] = None
+    ) -> None:
         super().__init__(parent)
         self.asset = asset
         self.setFixedSize(thumb_size + 10, thumb_size + 40)  # 余白込み
@@ -37,7 +39,10 @@ class MediaItemWidget(QWidget):
         thumb.setFixedSize(thumb_size, thumb_size)
         if asset.media_type == MediaType.IMAGE:
             pm = QPixmap(str(asset.path)).scaled(
-                thumb_size, thumb_size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+                thumb_size,
+                thumb_size,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
             )
             thumb.setPixmap(pm)
         else:
@@ -52,7 +57,9 @@ class MediaItemWidget(QWidget):
 
         # --- D&D 有効化
         self.setCursor(Qt.CursorShape.OpenHandCursor)
-        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)  # 破棄はプール側が管理
+        self.setAttribute(
+            Qt.WidgetAttribute.WA_DeleteOnClose, False
+        )  # 破棄はプール側が管理
 
     # --- Drag ---
     def mousePressEvent(self, e: QMouseEvent) -> None:

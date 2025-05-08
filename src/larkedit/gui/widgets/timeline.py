@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from PySide6.QtWidgets import QWidget, QScrollArea, QVBoxLayout
+from PySide6.QtWidgets import QScrollArea, QVBoxLayout, QWidget
 
 from ...core.project import Project
 from .track import TrackWidget

@@ -74,8 +74,8 @@ for i in range(FRAME_COUNT):
     rect_w, rect_h = 80, 60
     x = int((WIDTH - rect_w) * i / (FRAME_COUNT - 1))
     y = (HEIGHT - rect_h) // 2
-    ov[y: y + rect_h, x: x + rect_w, 0] = 255  # R
-    ov[y: y + rect_h, x: x + rect_w, 3] = 255  # A
+    ov[y : y + rect_h, x : x + rect_w, 0] = 255  # R
+    ov[y : y + rect_h, x : x + rect_w, 3] = 255  # A
 
     # Compositor でレイヤブレンド
     vf_bg = np_to_vframe(bg, pts_ms)
@@ -111,6 +111,7 @@ print("probe done")
 
 print("thumbnail example")
 from PySide6.QtGui import QGuiApplication  # noqa
+
 app = QGuiApplication([])
 img = media.thumbnail_qpixmap(VIDEO_FILE, 1000, 128)
 img.save(str(OUT_DIR / "thumb.png"))

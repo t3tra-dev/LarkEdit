@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...core.project import MediaAsset, MediaType, Project
+from ...utils.media import probe, thumbnail_qpixmap
 
 # 独自 MIME: クリップ追加時に asset.path を渡す
 MIME_ASSET_PATH = "application/x-larkedit-asset"
@@ -46,7 +47,9 @@ class MediaItemWidget(QWidget):
             )
             thumb.setPixmap(pm)
         else:
-            thumb.setStyleSheet("background:#444")  # プレースホルダ
+            # サムネイルを生成
+            pm = thumbnail_qpixmap(asset.path, 0, thumb_size)
+            thumb.setPixmap(pm)
         v.addWidget(thumb)
 
         # --- ファイル名
@@ -120,13 +123,21 @@ class MediaPoolWidget(QWidget):
             self._import_media(Path(p))
 
     def _import_media(self, path: Path) -> None:
-        # TODO: FFprobe で duration 取得、今は仮 10 秒
+        # メディアタイプの判定
         mtype = (
             MediaType.IMAGE
             if path.suffix.lower() in {".png", ".jpg", ".jpeg", ".bmp", ".gif"}
             else MediaType.VIDEO
         )
-        asset = MediaAsset(path, mtype, duration_ms=10_000)
+
+        # メディア情報を取得
+        try:
+            media_info = probe(path)
+            duration_ms = media_info.get("duration_ms", 0)
+        except Exception:
+            duration_ms = 10_000  # probe 失敗時はデフォルト10秒
+
+        asset = MediaAsset(path, mtype, duration_ms=duration_ms)
         self._assets.append(asset)
         self._add_widget(asset)
         # Project 側でリスト管理したい場合はここで登録する

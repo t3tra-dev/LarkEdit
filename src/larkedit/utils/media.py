@@ -43,7 +43,12 @@ def thumbnail_qpixmap(path: str | Path, ms: int = 0, size: int = 96) -> QPixmap:
         img = QImage(arr.data, w, h, QImage.Format.Format_RGBA8888)
         pm = QPixmap.fromImage(img)
         if max(w, h) > size:  # 念のため
-            pm = pm.scaled(size, size, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            pm = pm.scaled(
+                size,
+                size,
+                Qt.AspectRatioMode.IgnoreAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
         return pm
     except Exception:  # noqa: BLE001
         pm = QPixmap(size, size)

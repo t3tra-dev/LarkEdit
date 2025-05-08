@@ -1,45 +1,110 @@
 from __future__ import annotations
 
+from typing import Optional
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QMimeData, QByteArray
+from PySide6.QtGui import QPixmap, QDrag, QMouseEvent
 from PySide6.QtWidgets import (
-    QFileDialog,
-    QListWidget,
-    QListWidgetItem,
-    QPushButton,
-    QVBoxLayout,
     QWidget,
+    QScrollArea,
+    QVBoxLayout,
+    QGridLayout,
+    QLabel,
+    QPushButton,
+    QFileDialog,
 )
 
 from ...core.project import MediaAsset, MediaType, Project
 
+# 独自 MIME: クリップ追加時に asset.path を渡す
+MIME_ASSET_PATH = "application/x-larkedit-asset"
+
+
+class MediaItemWidget(QWidget):
+    """サムネイル + ファイル名"""
+
+    def __init__(self, asset: MediaAsset, thumb_size: int = 96, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.asset = asset
+        self.setFixedSize(thumb_size + 10, thumb_size + 40)  # 余白込み
+        v = QVBoxLayout(self)
+        v.setContentsMargins(4, 4, 4, 4)
+        v.setSpacing(4)
+
+        # --- サムネイル
+        thumb = QLabel(alignment=Qt.AlignmentFlag.AlignCenter)
+        thumb.setFixedSize(thumb_size, thumb_size)
+        if asset.media_type == MediaType.IMAGE:
+            pm = QPixmap(str(asset.path)).scaled(
+                thumb_size, thumb_size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+            )
+            thumb.setPixmap(pm)
+        else:
+            thumb.setStyleSheet("background:#444")  # プレースホルダ
+        v.addWidget(thumb)
+
+        # --- ファイル名
+        name = QLabel(asset.path.name, alignment=Qt.AlignmentFlag.AlignCenter)
+        name.setFixedHeight(24)
+        name.setWordWrap(True)
+        v.addWidget(name)
+
+        # --- D&D 有効化
+        self.setCursor(Qt.CursorShape.OpenHandCursor)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)  # 破棄はプール側が管理
+
+    # --- Drag ---
+    def mousePressEvent(self, e: QMouseEvent) -> None:
+        if e.button() != Qt.MouseButton.LeftButton:
+            return
+        drag = QDrag(self)
+        mime = QMimeData()
+        mime.setData(MIME_ASSET_PATH, QByteArray(str(self.asset.path).encode()))
+        drag.setMimeData(mime)
+        drag.setHotSpot(e.position().toPoint())
+        drag.setPixmap(self.grab())  # サムネイルをドラッグ画像に
+        drag.exec(Qt.DropAction.CopyAction)
+
 
 class MediaPoolWidget(QWidget):
     """
-    読み込んだメディアを列挙。ドラッグ＆ドロップでタイムラインへもっていける想定。
+    +--------- QScrollArea -------------------------------------------+
+    | MediaItem MediaItem MediaItem                                   |
+    | MediaItem MediaItem MediaItem  ← QGridLayout (Flow 的な配置)    |
+    +-----------------------------------------------------------------+
     """
 
-    asset_added = Signal(MediaAsset)
-
-    def __init__(self, project: Project, parent: QWidget | None = None) -> None:
+    def __init__(self, project: Project, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.setObjectName("MediaPoolWidget")
         self._project = project
+        self._thumb_size = 96
+        self._col_count = 3
 
-        vbox = QVBoxLayout(self)
+        root = QVBoxLayout(self)
         add_btn = QPushButton("+ メディアを追加...")
         add_btn.clicked.connect(self._choose_file)
-        vbox.addWidget(add_btn)
+        root.addWidget(add_btn)
 
-        self._list = QListWidget()
-        vbox.addWidget(self._list)
+        # スクロール領域
+        self._area = QScrollArea(widgetResizable=True)
+        root.addWidget(self._area)
+
+        self._content = QWidget()
+        self._grid = QGridLayout(self._content)
+        self._grid.setContentsMargins(4, 4, 4, 4)
+        self._grid.setSpacing(8)
+        self._area.setWidget(self._content)
+
+        self._assets: list[MediaAsset] = []
 
     # ---
     def set_project(self, project: Project) -> None:
         self._project = project
-        self._list.clear()
+        self._clear_assets()
 
+    # --- Media import ---
     def _choose_file(self) -> None:
         paths, _ = QFileDialog.getOpenFileNames(
             self, "メディアを選択", "", "Media Files (*.mp4 *.mov *.png *.jpg *.wav)"
@@ -48,9 +113,25 @@ class MediaPoolWidget(QWidget):
             self._import_media(Path(p))
 
     def _import_media(self, path: Path) -> None:
-        # TODO: メディア情報を FFprobe 等で取得して duration/ms 判定
-        asset = MediaAsset(path, MediaType.VIDEO, duration_ms=10_000)
-        item = QListWidgetItem(path.name)
-        item.setData(Qt.ItemDataRole.UserRole, asset)
-        self._list.addItem(item)
-        self.asset_added.emit(asset)
+        # TODO: FFprobe で duration 取得、今は仮 10 秒
+        mtype = (
+            MediaType.IMAGE
+            if path.suffix.lower() in {".png", ".jpg", ".jpeg", ".bmp", ".gif"}
+            else MediaType.VIDEO
+        )
+        asset = MediaAsset(path, mtype, duration_ms=10_000)
+        self._assets.append(asset)
+        self._add_widget(asset)
+        # Project 側でリスト管理したい場合はここで登録する
+
+    # --- Grid helpers ---
+    def _add_widget(self, asset: MediaAsset) -> None:
+        idx = len(self._assets) - 1
+        row, col = divmod(idx, self._col_count)
+        w = MediaItemWidget(asset, self._thumb_size)
+        self._grid.addWidget(w, row, col)
+
+    def _clear_assets(self) -> None:
+        while self._grid.count():
+            self._grid.takeAt(0).widget().deleteLater()
+        self._assets.clear()

@@ -1,60 +1,19 @@
 from __future__ import annotations
 
-from typing import Optional
+from PySide6.QtWidgets import QWidget, QScrollArea, QVBoxLayout
 
-from PySide6.QtCore import QRect
-from PySide6.QtGui import QColor, QPainter, QPaintEvent
-from PySide6.QtWidgets import QScrollArea, QWidget
-
-from ...core.project import Project, Track
-
-
-class _TimelineCanvas(QWidget):
-    """
-    Timeline の実描画部。今は非常に簡素な矩形描画のみ。
-    """
-
-    TRACK_HEIGHT = 40
-    PIXELS_PER_MS = 0.02  # 50 ms = 1 px
-
-    def __init__(self, project: Project, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
-        self._project = project
-        self.setMinimumHeight(self._calc_total_height())
-
-    # --- paint ---
-    def paintEvent(self, event: QPaintEvent) -> None:  # noqa: N802
-        p = QPainter(self)
-        for t in self._project.timeline.tracks:
-            self._draw_track(p, t)
-        p.end()
-
-    def _draw_track(self, painter: QPainter, track: Track) -> None:
-        y = track.index * self.TRACK_HEIGHT
-        # 背景
-        painter.fillRect(QRect(0, y, self.width(), self.TRACK_HEIGHT), QColor("#333"))
-        # クリップ
-        for clip in track.clips:
-            x = int(clip.start_ms * self.PIXELS_PER_MS)
-            w = int(clip.duration_ms * self.PIXELS_PER_MS)
-            painter.fillRect(
-                QRect(x, y + 4, w, self.TRACK_HEIGHT - 8), QColor("#6699cc")
-            )
-
-    # --- utils ---
-    def _calc_total_height(self) -> int:
-        tracks = len(self._project.timeline.tracks)
-        return max(200, tracks * self.TRACK_HEIGHT)
-
-    def set_project(self, project: Project) -> None:
-        self._project = project
-        self.setMinimumHeight(self._calc_total_height())
-        self.update()
+from ...core.project import Project
+from .track import TrackWidget
 
 
 class TimelineWidget(QScrollArea):
     """
-    スクロール可能なタイムラインビュー。
+    QScrollArea
+        └─ _content (QWidget)
+            └─ QVBoxLayout
+                ├─ TrackWidget 0
+                ├─ TrackWidget 1
+                └─ ...
     """
 
     def __init__(self, project: Project, parent: QWidget | None = None) -> None:
@@ -62,9 +21,42 @@ class TimelineWidget(QScrollArea):
         self.setObjectName("TimelineWidget")
         self.setWidgetResizable(True)
 
-        self._canvas = _TimelineCanvas(project, self)
-        self.setWidget(self._canvas)
+        self._project = project
+        self._content = QWidget()
+        self._vbox = QVBoxLayout(self._content)
+        self._vbox.setContentsMargins(0, 0, 0, 0)
+        self._vbox.setSpacing(0)
 
-    # ---
+        self.setWidget(self._content)
+        self._track_widgets: list[TrackWidget] = []
+
+        self._populate()
+
+    # --- utils ---
+    def _populate(self) -> None:
+        # 既存ウィジェット除去
+        for tw in self._track_widgets:
+            self._vbox.removeWidget(tw)
+            tw.deleteLater()
+        self._track_widgets.clear()
+
+        # Project の Track をウィジェット化
+        for t in sorted(self._project.timeline.tracks, key=lambda x: x.index):
+            tw = TrackWidget(self._project, t, self._content)
+            tw.clip_added.connect(self._on_clip_added)
+            self._vbox.addWidget(tw)
+            self._track_widgets.append(tw)
+
+        # スペーサー
+        self._vbox.addStretch()
+
+    # --- slots ---
+    def _on_clip_added(self) -> None:
+        # Clip 追加時に全トラック再描画
+        for tw in self._track_widgets:
+            tw.update()
+
+    # --- API ---
     def set_project(self, project: Project) -> None:
-        self._canvas.set_project(project)
+        self._project = project
+        self._populate()

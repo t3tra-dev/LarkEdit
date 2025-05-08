@@ -103,6 +103,15 @@ class Project:
 
     _observers: List[ProjectObserver] = field(default_factory=list, init=False)
 
+    def __post_init__(self) -> None:
+        """初期化後に実行される。デフォルトのトラックを作成する"""
+        # デフォルトでビデオトラックを追加
+        if not self.timeline.tracks:
+            video_track = Track(index=0, name="video")
+            # audio_track = Track(index=1, name="audio")
+            self.timeline.add_track(video_track)
+            # self.timeline.add_track(audio_track)
+
     # --- 公開 API ---
     def attach_observer(self, obs: ProjectObserver) -> None:
         if obs not in self._observers:

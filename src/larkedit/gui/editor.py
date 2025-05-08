@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QSplitter, QToolBar, QVBoxLayout, QWidget
 
-from ..core.project import Project
+from ..core.project import Project, Track
 from .widgets.media_pool import MediaPoolWidget
 from .widgets.preview import PreviewWidget
 from .widgets.property_editor import PropertyEditorWidget
@@ -27,7 +27,7 @@ class EditorPage(QWidget):
 
         self._project = project
 
-        # --- Toolbar ----------------------------------------------------
+        # --- Toolbar ---
         toolbar = QToolBar("Main", self)
         toolbar.setMovable(False)
         # 例: メディア読み込み / Undo / Redo
@@ -68,3 +68,8 @@ class EditorPage(QWidget):
         self._preview.set_project(project)
         self._prop_editor.set_project(project)
         self._timeline.set_project(project)
+
+        # 最低 1 トラック
+        if not self._project.timeline.tracks:
+            self._project.timeline.add_track(Track(index=0, name="V1"))
+        self._timeline.set_project(self._project)

@@ -1,8 +1,9 @@
-from pathlib import Path
 import threading
 import time
+from pathlib import Path
 
 import numpy as np
+
 from larkedit.encoding.ffmpeg_binding import encoder as ffm  # type: ignore
 
 OUT_DIR = Path("example_output")
@@ -70,8 +71,8 @@ for i in range(FRAME_COUNT):
     rect_w, rect_h = 80, 60
     x = int((WIDTH - rect_w) * i / (FRAME_COUNT - 1))
     y = (HEIGHT - rect_h) // 2
-    ov[y: y + rect_h, x: x + rect_w, 0] = 255  # R
-    ov[y: y + rect_h, x: x + rect_w, 3] = 255  # A
+    ov[y : y + rect_h, x : x + rect_w, 0] = 255  # R
+    ov[y : y + rect_h, x : x + rect_w, 3] = 255  # A
 
     # Compositor でレイヤブレンド
     vf_bg = np_to_vframe(bg, pts_ms)

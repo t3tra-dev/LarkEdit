@@ -13,4 +13,5 @@ wheels/
 example_output/
 
 # Misc
+LOADMAP.md
 .DS_Store
